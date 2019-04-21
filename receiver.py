@@ -26,16 +26,17 @@ class MessageReceiverHandler(threading.Thread):
             if received_type == enums.ClientAction.ACTIVE_CHANNEL.value:
                 self.master.change_channel(received_args)
             elif received_type == enums.ClientAction.CHANNEL.value:
+                new_channels = {}
                 self.master.sidebar.delete(0, 'end')
                 channels = received_args.split(";")
                 for channel in channels:
                     self.master.sidebar.insert(tkinter.END, channel)
                     self.master.sidebar.itemconfig(tkinter.END, fg='black')
-                    if channel not in self.master.channels:
-                        self.master.channels[channel] = []
-                for channel in self.master.channels:
-                    if channel not in channels:
-                        del self.master.channels[channel]
+                    if channel in self.master.channels:
+                        new_channels[channel] = self.master.channels[channel]
+                    else:
+                        new_channels[channel] = []
+                self.master.channels = new_channels.copy()
             elif received_type == enums.ClientAction.KICK.value:
                 self.master.insert_message("tomato", "$ " + received_args)
                 self.master.client_socket.send(("/" + enums.ClientAction.EXIT.value).encode(settings.ENCODING))
@@ -68,8 +69,7 @@ class MessageReceiverHandler(threading.Thread):
                 motd_args = received_args.split(" ", 1)
                 motd_channel = motd_args[0].lstrip()
                 motd_message = motd_args[1].lstrip()
-                for line in motd_message.splitlines():
-                    self.master.insert_message("gray50", line, motd_channel)
+                self.master.insert_message("gray50", motd_message, motd_channel)
             elif received_type == enums.MessageType.BROADCAST.value:
                 broadcast_args = received_args.split(" ", 2)
                 broadcast_timestamp = float(broadcast_args[0])
