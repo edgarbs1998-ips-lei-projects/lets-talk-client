@@ -1,6 +1,3 @@
-import time
-
-import enums
 import receiver
 import tkinter
 import socket
@@ -116,5 +113,13 @@ class Main(tkinter.Frame):
             self.msg_list.see(tkinter.END)
 
     def on_closing(self, event=None):
-        self.client_socket.close()
-        self.master.destroy()
+        try:
+            # Close socket
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+            self.client_socket.close()
+
+            # Close window
+            self.master.quit()
+        except OSError:
+            # Close window
+            self.master.quit()
