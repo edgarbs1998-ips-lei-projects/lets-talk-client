@@ -113,6 +113,7 @@ class Main(tkinter.Frame):
             for message in self.channels[channel]:
                 self.msg_list.insert(tkinter.END, message["message"])
                 self.msg_list.itemconfig(tkinter.END, fg=message["color"])
+            self.msg_list.see(tkinter.END)
 
     def on_closing(self, event=None):
         self.client_socket.close()
