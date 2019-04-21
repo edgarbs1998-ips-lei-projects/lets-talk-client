@@ -33,6 +33,9 @@ class MessageReceiverHandler(threading.Thread):
                     self.master.sidebar.itemconfig(tkinter.END, fg='black')
                     if channel not in self.master.channels:
                         self.master.channels[channel] = []
+                for channel in self.master.channels:
+                    if channel not in channels:
+                        del self.master.channels[channel]
             elif received_type == enums.ClientAction.KICK.value:
                 self.master.insert_message("tomato", "$ " + received_args)
                 self.master.client_socket.send(("/" + enums.ClientAction.EXIT.value).encode(settings.ENCODING))
@@ -64,7 +67,8 @@ class MessageReceiverHandler(threading.Thread):
             elif received_type == enums.MessageType.MOTD.value:
                 motd_args = received_args.split(" ", 1)
                 motd_channel = motd_args[0].lstrip()
-                for line in received_args.splitlines():
+                motd_message = motd_args[1].lstrip()
+                for line in motd_message.splitlines():
                     self.master.insert_message("gray50", line, motd_channel)
             elif received_type == enums.MessageType.BROADCAST.value:
                 broadcast_args = received_args.split(" ", 2)
