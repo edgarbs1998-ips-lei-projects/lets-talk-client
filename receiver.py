@@ -1,4 +1,5 @@
 import threading
+import time
 import tkinter
 from datetime import datetime
 
@@ -15,6 +16,9 @@ class MessageReceiverHandler(threading.Thread):
     def run(self):
         while True:
             received = self.master.client_socket.recv(settings.BUFSIZE).decode(settings.ENCODING)
+            if not received:
+                time.sleep(3)
+                break
 
             received_type_args = received.split(" ", 1)
             received_type = received_type_args[0]
@@ -42,6 +46,7 @@ class MessageReceiverHandler(threading.Thread):
                 self.master.client_socket.send(("/" + enums.ClientAction.EXIT.value).encode(settings.ENCODING))
             elif received_type == enums.ClientAction.EXIT.value:
                 self.master.insert_message("blue", "$ " + received_args)
+                time.sleep(3)
                 break
             elif received_type == enums.MessageType.INFO.value:
                 for line in received_args.splitlines():
